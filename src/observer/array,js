@@ -1,0 +1,34 @@
+let oldArrayProtoMethods = Array.prototype;
+
+export let arrayMethods = Object.create(Array.prototype);
+
+let methods = [
+    'pop',
+    'push',
+    'shift',
+    'unshift',
+    'splice',
+    'reverse'
+]
+methods.forEach(method => {
+    arrayMethods[method] = function (...args) {
+        let result = oldArrayProtoMethods[method].apply(this, args);
+        let ob = this.__ob__;
+        let inserted;
+        switch (method) {
+            case 'push':
+            case 'unshift':
+                inserted = args
+                break;
+            case 'splice':
+                inserted = args.slice(2)
+                break;
+            default:
+                break
+        }
+
+        if (inserted) ob.observeArray(inserted)
+        return result
+    }
+
+})
